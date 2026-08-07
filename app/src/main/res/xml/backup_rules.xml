@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="database" path="adroid_signal_db" />
+    <exclude domain="database" path="adroid_signal_db-wal" />
+    <exclude domain="database" path="adroid_signal_db-shm" />
+</full-backup-content>

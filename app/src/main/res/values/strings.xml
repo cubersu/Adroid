@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Adroid Signal</string>
+
+    <string name="disclaimer_title">Yatırım Tavsiyesi Değildir</string>
+    <string name="disclaimer_body">Bu uygulama yalnızca teknik göstergelere dayalı otomatik sinyaller üretir. Herhangi bir alım-satım emri vermez ve finansal tavsiye niteliği taşımaz. Yatırım kararlarınızı kendi araştırmanıza dayanarak verin.</string>
+
+    <string name="nav_watchlist">Takip Listesi</string>
+    <string name="nav_history">Geçmiş</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <string name="watchlist_empty">Henüz takip edilen parite yok. Eklemek için + butonuna dokunun.</string>
+    <string name="watchlist_add_pair">Parite Ekle</string>
+    <string name="signal_none">NÖTR</string>
+    <string name="signal_buy">AL</string>
+    <string name="signal_sell">SAT</string>
+
+    <string name="history_empty">Henüz üretilmiş bir sinyal yok.</string>
+
+    <string name="settings_confidence_threshold">Sinyal Hassasiyeti (Güven Eşiği)</string>
+    <string name="settings_notifications_enabled">Bildirimleri Aç</string>
+    <string name="settings_indicators_title">Aktif Göstergeler</string>
+
+    <string name="notification_channel_name">Alım-Satım Sinyalleri</string>
+    <string name="notification_channel_description">Yeni AL/SAT sinyalleri üretildiğinde bildirim gönderir</string>
+</resources>
