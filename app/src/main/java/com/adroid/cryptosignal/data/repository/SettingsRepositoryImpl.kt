@@ -26,4 +26,10 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setIndicatorEnabled(indicator: IndicatorType, enabled: Boolean) {
         dataStore.setIndicatorEnabled(indicator, enabled)
     }
+
+    override fun observeHasSeenDisclaimer(): Flow<Boolean> = dataStore.hasSeenDisclaimerFlow
+
+    override suspend fun setHasSeenDisclaimer() {
+        dataStore.setHasSeenDisclaimer()
+    }
 }

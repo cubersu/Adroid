@@ -27,6 +27,9 @@ class SignalRepositoryImpl @Inject constructor(
     override fun observeLatestSignal(pairSymbol: String): Flow<TradeSignal?> =
         dao.observeLatestForPair(pairSymbol).map { it?.toDomain() }
 
+    override fun observeSignalById(id: Long): Flow<TradeSignal?> =
+        dao.observeById(id).map { it?.toDomain() }
+
     private fun TradeSignalEntity.toDomain(): TradeSignal = TradeSignal(
         id = id,
         pairSymbol = pairSymbol,

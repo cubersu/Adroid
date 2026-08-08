@@ -103,6 +103,7 @@ fun PairDetailScreen(
                         emaShortSeries = uiState.emaShortSeries,
                         emaMidSeries = uiState.emaMidSeries,
                         vwapSeries = uiState.vwapSeries,
+                        signalMarkers = uiState.signalMarkers,
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1.4f)

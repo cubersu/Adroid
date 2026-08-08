@@ -2,14 +2,23 @@ package com.adroid.cryptosignal.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-val SignalBuyGreen = Color(0xFF1DB954)
-val SignalSellRed = Color(0xFFE53935)
-val SignalNeutralGray = Color(0xFF9E9E9E)
+// Trader-panel dark palette. Near-black background, amber/blue accent kept clear of the
+// buy/sell hues so selection state never gets confused with signal direction.
+val BackgroundDark = Color(0xFF0D1117)
+val SurfaceDark = Color(0xFF161B22)
+val SurfaceVariantDark = Color(0xFF21262D)
+val OutlineDark = Color(0xFF30363D)
 
-val PrimaryBlue = Color(0xFF2962FF)
-val PrimaryBlueDark = Color(0xFF0039CB)
+val TextPrimary = Color(0xFFE6EDF3)
+val TextSecondary = Color(0xFF8B949E)
 
-val BackgroundDark = Color(0xFF121212)
-val SurfaceDark = Color(0xFF1E1E1E)
-val BackgroundLight = Color(0xFFFAFAFA)
-val SurfaceLight = Color(0xFFFFFFFF)
+val BuyGreen = Color(0xFF00C853)
+val SellRed = Color(0xFFFF3B30)
+val NeutralGray = Color(0xFF8B949E)
+
+val AccentBlue = Color(0xFF5B8DEF)
+
+// Aliases kept for existing call sites (SignalBadge, chart legend, etc.).
+val SignalBuyGreen = BuyGreen
+val SignalSellRed = SellRed
+val SignalNeutralGray = NeutralGray

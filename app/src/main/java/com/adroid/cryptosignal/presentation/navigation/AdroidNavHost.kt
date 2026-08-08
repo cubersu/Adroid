@@ -22,6 +22,7 @@ import com.adroid.cryptosignal.presentation.addpair.AddPairScreen
 import com.adroid.cryptosignal.presentation.history.HistoryScreen
 import com.adroid.cryptosignal.presentation.pairdetail.PairDetailScreen
 import com.adroid.cryptosignal.presentation.settings.SettingsScreen
+import com.adroid.cryptosignal.presentation.signaldetail.SignalDetailScreen
 import com.adroid.cryptosignal.presentation.watchlist.WatchlistScreen
 
 @Composable
@@ -31,7 +32,12 @@ fun AdroidNavHost(navController: NavHostController = rememberNavController()) {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute != Destination.AddPair.route && currentRoute != Destination.PairDetail.route) {
+            val hideBottomBarRoutes = setOf(
+                Destination.AddPair.route,
+                Destination.PairDetail.route,
+                Destination.SignalDetail.route
+            )
+            if (currentRoute !in hideBottomBarRoutes) {
                 NavigationBar {
                     bottomTabs.forEach { tab ->
                         NavigationBarItem(
@@ -72,7 +78,13 @@ fun AdroidNavHost(navController: NavHostController = rememberNavController()) {
                 PairDetailScreen(onBackClick = { navController.popBackStack() })
             }
             composable(Destination.History.route) {
-                HistoryScreen()
+                HistoryScreen(onSignalClick = { id -> navController.navigate(Destination.SignalDetail.createRoute(id)) })
+            }
+            composable(
+                route = Destination.SignalDetail.route,
+                arguments = listOf(navArgument(Destination.SignalDetail.ARG_SIGNAL_ID) { type = NavType.LongType })
+            ) {
+                SignalDetailScreen(onBackClick = { navController.popBackStack() })
             }
             composable(Destination.Settings.route) {
                 SettingsScreen()

@@ -1,31 +1,33 @@
 package com.adroid.cryptosignal.presentation.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-private val DarkColors = darkColorScheme(
-    primary = PrimaryBlue,
+/**
+ * A fixed brand palette — no Material You dynamic color, no light theme. A trader-facing
+ * signal app benefits from a single, predictable dark surface rather than adapting to the
+ * device wallpaper or system light/dark switch.
+ */
+private val AdroidColorScheme = darkColorScheme(
+    primary = AccentBlue,
+    onPrimary = TextPrimary,
+    secondary = AccentBlue,
     background = BackgroundDark,
-    surface = SurfaceDark
-)
-
-private val LightColors = lightColorScheme(
-    primary = PrimaryBlue,
-    background = BackgroundLight,
-    surface = SurfaceLight
+    onBackground = TextPrimary,
+    surface = SurfaceDark,
+    onSurface = TextPrimary,
+    surfaceVariant = SurfaceVariantDark,
+    onSurfaceVariant = TextSecondary,
+    outline = OutlineDark,
+    error = SellRed,
+    onError = TextPrimary
 )
 
 @Composable
-fun AdroidTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    val colorScheme = if (darkTheme) DarkColors else LightColors
+fun AdroidTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = AdroidColorScheme,
         content = content
     )
 }

@@ -16,6 +16,10 @@ sealed class Destination(val route: String) {
         const val ARG_SYMBOL = "symbol"
         fun createRoute(symbol: String) = "pair_detail/$symbol"
     }
+    data object SignalDetail : Destination("signal_detail/{signalId}") {
+        const val ARG_SIGNAL_ID = "signalId"
+        fun createRoute(signalId: Long) = "signal_detail/$signalId"
+    }
 }
 
 data class BottomTab(val destination: Destination, val icon: ImageVector, val labelRes: Int)

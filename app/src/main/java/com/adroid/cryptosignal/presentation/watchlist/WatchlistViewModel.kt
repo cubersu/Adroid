@@ -75,7 +75,8 @@ class WatchlistViewModel @Inject constructor(
                 lastPrice = ticker?.last,
                 dailyPercent = ticker?.dailyPercent,
                 currentStatus = currentStatus,
-                latestSignal = latestSignal
+                latestSignal = latestSignal,
+                sparklinePrices = candles.takeLast(SPARKLINE_CANDLE_COUNT).map { it.close }
             )
         }
     }
@@ -86,5 +87,6 @@ class WatchlistViewModel @Inject constructor(
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
+        const val SPARKLINE_CANDLE_COUNT = 30
     }
 }

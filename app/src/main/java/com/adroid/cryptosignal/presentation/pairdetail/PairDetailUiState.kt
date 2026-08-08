@@ -17,5 +17,6 @@ data class PairDetailUiState(
     val criteriaBreakdown: SignalCriteriaBreakdown? = null,
     /** What the strategy says right now (including NEUTRAL) — live, not just the last saved signal. */
     val liveSignalType: SignalType = SignalType.NEUTRAL,
-    val latestSignal: TradeSignal? = null
+    val latestSignal: TradeSignal? = null,
+    val signalMarkers: List<SignalMarker> = emptyList()
 )

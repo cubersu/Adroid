@@ -24,6 +24,15 @@ class SettingsDataStore @Inject constructor(
         val CONFIDENCE_THRESHOLD = intPreferencesKey("confidence_threshold_percent")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val ENABLED_INDICATORS = stringSetPreferencesKey("enabled_indicators")
+        val HAS_SEEN_DISCLAIMER = booleanPreferencesKey("has_seen_disclaimer")
+    }
+
+    val hasSeenDisclaimerFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.HAS_SEEN_DISCLAIMER] ?: false
+    }
+
+    suspend fun setHasSeenDisclaimer() {
+        context.dataStore.edit { it[Keys.HAS_SEEN_DISCLAIMER] = true }
     }
 
     val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { prefs ->

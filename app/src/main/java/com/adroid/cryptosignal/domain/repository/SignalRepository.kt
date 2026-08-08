@@ -7,4 +7,5 @@ interface SignalRepository {
     fun observeSignalHistory(pairSymbol: String? = null): Flow<List<TradeSignal>>
     suspend fun saveSignal(signal: TradeSignal)
     fun observeLatestSignal(pairSymbol: String): Flow<TradeSignal?>
+    fun observeSignalById(id: Long): Flow<TradeSignal?>
 }

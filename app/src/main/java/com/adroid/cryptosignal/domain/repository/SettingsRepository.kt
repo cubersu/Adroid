@@ -9,4 +9,6 @@ interface SettingsRepository {
     suspend fun setConfidenceThreshold(percent: Int)
     suspend fun setNotificationsEnabled(enabled: Boolean)
     suspend fun setIndicatorEnabled(indicator: IndicatorType, enabled: Boolean)
+    fun observeHasSeenDisclaimer(): Flow<Boolean>
+    suspend fun setHasSeenDisclaimer()
 }

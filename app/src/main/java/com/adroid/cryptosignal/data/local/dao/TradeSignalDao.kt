@@ -18,6 +18,9 @@ interface TradeSignalDao {
     @Query("SELECT * FROM trade_signals WHERE pairSymbol = :pairSymbol ORDER BY timestampMillis DESC LIMIT 1")
     fun observeLatestForPair(pairSymbol: String): Flow<TradeSignalEntity?>
 
+    @Query("SELECT * FROM trade_signals WHERE id = :id")
+    fun observeById(id: Long): Flow<TradeSignalEntity?>
+
     @Insert
     suspend fun insert(entity: TradeSignalEntity): Long
 }

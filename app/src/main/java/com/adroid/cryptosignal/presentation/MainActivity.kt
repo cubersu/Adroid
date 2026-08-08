@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.adroid.cryptosignal.presentation.common.FirstLaunchDisclaimerGate
 import com.adroid.cryptosignal.presentation.navigation.AdroidNavHost
 import com.adroid.cryptosignal.presentation.theme.AdroidTheme
 import com.adroid.cryptosignal.service.SignalMonitorService
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AdroidTheme {
                 AdroidNavHost()
+                FirstLaunchDisclaimerGate()
             }
         }
     }

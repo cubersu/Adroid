@@ -33,8 +33,9 @@ class PairDetailViewModel @Inject constructor(
     val uiState: StateFlow<PairDetailUiState> = combine(
         marketDataRepository.observeCandleBuffer(pairSymbol),
         settingsRepository.observeSettings(),
-        signalRepository.observeLatestSignal(pairSymbol)
-    ) { candles, settings, latestSignal ->
+        signalRepository.observeLatestSignal(pairSymbol),
+        signalRepository.observeSignalHistory(pairSymbol)
+    ) { candles, settings, latestSignal, history ->
         val closes = candles.map { it.close }
         val snapshot = computeIndicatorSnapshot(candles, settings.indicatorConfig)
         PairDetailUiState(
@@ -47,7 +48,8 @@ class PairDetailViewModel @Inject constructor(
             snapshot = snapshot,
             criteriaBreakdown = snapshot?.let { signalStrategy.describeCriteria(it) },
             liveSignalType = snapshot?.let { signalStrategy.evaluate(it).type } ?: SignalType.NEUTRAL,
-            latestSignal = latestSignal
+            latestSignal = latestSignal,
+            signalMarkers = history.map { SignalMarker(it.timestampMillis / 1000, it.type) }
         )
     }.stateIn(
         viewModelScope,
