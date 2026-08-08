@@ -23,7 +23,7 @@ fun Sparkline(
     val minValue = values.min()
     val maxValue = values.max()
     val range = (maxValue - minValue).takeIf { it > 0.0 } ?: 1.0
-    val lineColor = if (color.isUnspecified) {
+    val lineColor = if (color == Color.Unspecified) {
         if (values.last() >= values.first()) BuyGreenLocal else SellRedLocal
     } else {
         color
