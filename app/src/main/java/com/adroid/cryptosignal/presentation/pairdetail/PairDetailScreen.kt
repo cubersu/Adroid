@@ -84,6 +84,19 @@ fun PairDetailScreen(
                 .fillMaxWidth()
         ) {
             Card(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Şu anki durum", style = MaterialTheme.typography.titleSmall)
+                    SignalBadge(type = uiState.liveSignalType)
+                }
+            }
+
+            Card(modifier = Modifier.padding(16.dp)) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     CandlestickChart(
                         candles = uiState.candles,

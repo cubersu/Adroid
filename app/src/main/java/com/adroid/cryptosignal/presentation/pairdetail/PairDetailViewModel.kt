@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.adroid.cryptosignal.domain.indicator.computeIndicatorSnapshot
 import com.adroid.cryptosignal.domain.indicator.ema
 import com.adroid.cryptosignal.domain.indicator.vwap
+import com.adroid.cryptosignal.domain.model.SignalType
 import com.adroid.cryptosignal.domain.repository.MarketDataRepository
 import com.adroid.cryptosignal.domain.repository.SettingsRepository
 import com.adroid.cryptosignal.domain.repository.SignalRepository
@@ -45,6 +46,7 @@ class PairDetailViewModel @Inject constructor(
             vwapSeries = if (candles.isEmpty()) emptyList() else vwap(candles),
             snapshot = snapshot,
             criteriaBreakdown = snapshot?.let { signalStrategy.describeCriteria(it) },
+            liveSignalType = snapshot?.let { signalStrategy.evaluate(it).type } ?: SignalType.NEUTRAL,
             latestSignal = latestSignal
         )
     }.stateIn(

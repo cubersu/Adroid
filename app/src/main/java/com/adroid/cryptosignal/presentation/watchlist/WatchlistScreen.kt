@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adroid.cryptosignal.R
-import com.adroid.cryptosignal.domain.model.SignalType
 import com.adroid.cryptosignal.presentation.common.DisclaimerBanner
 import com.adroid.cryptosignal.presentation.common.SignalBadge
 import java.util.Locale
@@ -102,7 +101,7 @@ private fun WatchlistRow(item: WatchlistItem, onClick: () -> Unit, onRemove: (St
                     )
                 }
             }
-            SignalBadge(type = item.latestSignal?.type ?: SignalType.NEUTRAL)
+            SignalBadge(type = item.currentStatus)
             IconButton(onClick = { onRemove(item.pair.symbol) }) {
                 Icon(Icons.Filled.Delete, contentDescription = null)
             }

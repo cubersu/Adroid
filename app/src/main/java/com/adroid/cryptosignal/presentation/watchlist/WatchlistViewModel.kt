@@ -2,11 +2,15 @@ package com.adroid.cryptosignal.presentation.watchlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.adroid.cryptosignal.domain.indicator.computeIndicatorSnapshot
+import com.adroid.cryptosignal.domain.model.SignalType
 import com.adroid.cryptosignal.domain.model.Ticker
 import com.adroid.cryptosignal.domain.model.WatchedPair
 import com.adroid.cryptosignal.domain.repository.MarketDataRepository
+import com.adroid.cryptosignal.domain.repository.SettingsRepository
 import com.adroid.cryptosignal.domain.repository.SignalRepository
 import com.adroid.cryptosignal.domain.repository.WatchlistRepository
+import com.adroid.cryptosignal.domain.strategy.SignalStrategy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +28,9 @@ import kotlinx.coroutines.launch
 class WatchlistViewModel @Inject constructor(
     private val watchlistRepository: WatchlistRepository,
     private val marketDataRepository: MarketDataRepository,
-    private val signalRepository: SignalRepository
+    private val signalRepository: SignalRepository,
+    private val settingsRepository: SettingsRepository,
+    private val signalStrategy: SignalStrategy
 ) : ViewModel() {
 
     val uiState: StateFlow<WatchlistUiState> = combine(
@@ -43,16 +49,32 @@ class WatchlistViewModel @Inject constructor(
             }
         }
 
+    /**
+     * [WatchlistItem.currentStatus] reflects what the strategy says *right now* (including
+     * NEUTRAL), computed live from the candle buffer — not just the last BUY/SELL that was
+     * strong enough to be persisted/notified. Without this, the badge would keep showing a
+     * stale AL/SAT long after the market moved back to neutral, since NEUTRAL evaluations are
+     * never saved to history by design.
+     */
     private fun watchlistItemFlow(watched: WatchedPair): Flow<WatchlistItem> {
-        val tickerFlow: Flow<Ticker?> = marketDataRepository.observeTicker(watched.pair.symbol)
+        val symbol = watched.pair.symbol
+        val tickerFlow: Flow<Ticker?> = marketDataRepository.observeTicker(symbol)
             .map<Ticker, Ticker?> { it }
             .onStart { emit(null) }
 
-        return combine(tickerFlow, signalRepository.observeLatestSignal(watched.pair.symbol)) { ticker, latestSignal ->
+        return combine(
+            tickerFlow,
+            signalRepository.observeLatestSignal(symbol),
+            marketDataRepository.observeCandleBuffer(symbol),
+            settingsRepository.observeSettings()
+        ) { ticker, latestSignal, candles, settings ->
+            val snapshot = computeIndicatorSnapshot(candles, settings.indicatorConfig)
+            val currentStatus = snapshot?.let { signalStrategy.evaluate(it).type } ?: SignalType.NEUTRAL
             WatchlistItem(
                 pair = watched.pair,
                 lastPrice = ticker?.last,
                 dailyPercent = ticker?.dailyPercent,
+                currentStatus = currentStatus,
                 latestSignal = latestSignal
             )
         }

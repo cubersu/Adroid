@@ -3,7 +3,6 @@ package com.adroid.cryptosignal.data.remote.websocket
 import com.adroid.cryptosignal.domain.model.Candle
 import com.adroid.cryptosignal.domain.model.ConnectionState
 import com.adroid.cryptosignal.domain.model.Ticker
-import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,8 +52,12 @@ class BtcTurkWebSocketClient @Inject constructor(
     private val candleFlows = ConcurrentHashMap<String, MutableSharedFlow<Candle>>()
     private val tickerFlows = ConcurrentHashMap<String, MutableSharedFlow<Ticker>>()
 
-    private val activeTradeViewPairs = Collections.synchronizedSet(mutableSetOf<String>())
-    private val activeTickerPairs = Collections.synchronizedSet(mutableSetOf<String>())
+    // Reference-counted, not a plain set: multiple independent collectors (the background
+    // monitoring service, the watchlist screen, the pair detail screen) can all be observing
+    // the same pair's candles/ticker at once. A naive set would let one collector's unsubscribe
+    // silently kill the feed for everyone else still watching that pair.
+    private val tradeViewRefCounts = ConcurrentHashMap<String, Int>()
+    private val tickerRefCounts = ConcurrentHashMap<String, Int>()
 
     private val listener = object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -85,25 +88,35 @@ class BtcTurkWebSocketClient @Inject constructor(
         tickerFlows.getOrPut(pairSymbol) { MutableSharedFlow(extraBufferCapacity = 16) }
 
     fun subscribeTradeView(pairSymbol: String) {
-        activeTradeViewPairs.add(pairSymbol)
         ensureConnected()
-        sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TRADEVIEW, BtcTurkSocketProtocol.tradeViewEvent(pairSymbol))
+        val subscriberCount = tradeViewRefCounts.merge(pairSymbol, 1, Int::plus)
+        if (subscriberCount == 1) {
+            sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TRADEVIEW, BtcTurkSocketProtocol.tradeViewEvent(pairSymbol))
+        }
     }
 
     fun unsubscribeTradeView(pairSymbol: String) {
-        activeTradeViewPairs.remove(pairSymbol)
-        sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TRADEVIEW, BtcTurkSocketProtocol.tradeViewEvent(pairSymbol), join = false)
+        val remaining = tradeViewRefCounts.computeIfPresent(pairSymbol) { _, count -> count - 1 }
+        if (remaining == null || remaining <= 0) {
+            tradeViewRefCounts.remove(pairSymbol)
+            sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TRADEVIEW, BtcTurkSocketProtocol.tradeViewEvent(pairSymbol), join = false)
+        }
     }
 
     fun subscribeTicker(pairSymbol: String) {
-        activeTickerPairs.add(pairSymbol)
         ensureConnected()
-        sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TICKER, pairSymbol)
+        val subscriberCount = tickerRefCounts.merge(pairSymbol, 1, Int::plus)
+        if (subscriberCount == 1) {
+            sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TICKER, pairSymbol)
+        }
     }
 
     fun unsubscribeTicker(pairSymbol: String) {
-        activeTickerPairs.remove(pairSymbol)
-        sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TICKER, pairSymbol, join = false)
+        val remaining = tickerRefCounts.computeIfPresent(pairSymbol) { _, count -> count - 1 }
+        if (remaining == null || remaining <= 0) {
+            tickerRefCounts.remove(pairSymbol)
+            sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TICKER, pairSymbol, join = false)
+        }
     }
 
     fun disconnect() {
@@ -127,14 +140,10 @@ class BtcTurkWebSocketClient @Inject constructor(
     }
 
     private fun resubscribeAll() {
-        synchronized(activeTradeViewPairs) {
-            activeTradeViewPairs.forEach { pair ->
-                sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TRADEVIEW, BtcTurkSocketProtocol.tradeViewEvent(pair))
-            }
+        tradeViewRefCounts.keys.forEach { pair ->
+            sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TRADEVIEW, BtcTurkSocketProtocol.tradeViewEvent(pair))
         }
-        synchronized(activeTickerPairs) {
-            activeTickerPairs.forEach { pair -> sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TICKER, pair) }
-        }
+        tickerRefCounts.keys.forEach { pair -> sendSubscribe(BtcTurkSocketProtocol.CHANNEL_TICKER, pair) }
     }
 
     private fun sendSubscribe(channel: String, event: String, join: Boolean = true) {
