@@ -12,12 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.adroid.cryptosignal.presentation.addpair.AddPairScreen
 import com.adroid.cryptosignal.presentation.history.HistoryScreen
+import com.adroid.cryptosignal.presentation.pairdetail.PairDetailScreen
 import com.adroid.cryptosignal.presentation.settings.SettingsScreen
 import com.adroid.cryptosignal.presentation.watchlist.WatchlistScreen
 
@@ -28,7 +31,7 @@ fun AdroidNavHost(navController: NavHostController = rememberNavController()) {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute != Destination.AddPair.route) {
+            if (currentRoute != Destination.AddPair.route && currentRoute != Destination.PairDetail.route) {
                 NavigationBar {
                     bottomTabs.forEach { tab ->
                         NavigationBarItem(
@@ -54,10 +57,19 @@ fun AdroidNavHost(navController: NavHostController = rememberNavController()) {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Destination.Watchlist.route) {
-                WatchlistScreen(onAddPairClick = { navController.navigate(Destination.AddPair.route) })
+                WatchlistScreen(
+                    onAddPairClick = { navController.navigate(Destination.AddPair.route) },
+                    onPairClick = { symbol -> navController.navigate(Destination.PairDetail.createRoute(symbol)) }
+                )
             }
             composable(Destination.AddPair.route) {
                 AddPairScreen(onBackClick = { navController.popBackStack() })
+            }
+            composable(
+                route = Destination.PairDetail.route,
+                arguments = listOf(navArgument(Destination.PairDetail.ARG_SYMBOL) { type = NavType.StringType })
+            ) {
+                PairDetailScreen(onBackClick = { navController.popBackStack() })
             }
             composable(Destination.History.route) {
                 HistoryScreen()

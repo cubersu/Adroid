@@ -38,6 +38,7 @@ import java.util.Locale
 @Composable
 fun WatchlistScreen(
     onAddPairClick: () -> Unit,
+    onPairClick: (String) -> Unit,
     viewModel: WatchlistViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,7 +61,11 @@ fun WatchlistScreen(
                 }
                 else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(uiState.items, key = { it.pair.symbol }) { item ->
-                        WatchlistRow(item = item, onRemove = { viewModel.removePair(it) })
+                        WatchlistRow(
+                            item = item,
+                            onClick = { onPairClick(item.pair.symbol) },
+                            onRemove = { viewModel.removePair(it) }
+                        )
                     }
                 }
             }
@@ -69,8 +74,9 @@ fun WatchlistScreen(
 }
 
 @Composable
-private fun WatchlistRow(item: WatchlistItem, onRemove: (String) -> Unit) {
+private fun WatchlistRow(item: WatchlistItem, onClick: () -> Unit, onRemove: (String) -> Unit) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),

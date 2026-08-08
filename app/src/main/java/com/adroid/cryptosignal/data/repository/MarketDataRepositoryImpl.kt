@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 
 @Singleton
@@ -72,6 +73,21 @@ class MarketDataRepositoryImpl @Inject constructor(
             resyncJob.cancel()
             webSocketClient.unsubscribeTradeView(pairSymbol)
         }
+    }
+
+    override fun observeCandleBuffer(pairSymbol: String, maxSize: Int): Flow<List<Candle>> =
+        observeCandleUpdates(pairSymbol)
+            .scan(emptyList<Candle>()) { buffer, candle -> upsertCandle(buffer, candle, maxSize) }
+            .filter { it.isNotEmpty() }
+
+    private fun upsertCandle(buffer: List<Candle>, candle: Candle, maxSize: Int): List<Candle> {
+        val withoutStaleTail = if (buffer.isNotEmpty() && buffer.last().openTimeSeconds == candle.openTimeSeconds) {
+            buffer.dropLast(1)
+        } else {
+            buffer
+        }
+        val updated = withoutStaleTail + candle
+        return if (updated.size > maxSize) updated.takeLast(maxSize) else updated
     }
 
     override fun observeTicker(pairSymbol: String): Flow<Ticker> = channelFlow {

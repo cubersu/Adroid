@@ -12,6 +12,10 @@ sealed class Destination(val route: String) {
     data object AddPair : Destination("add_pair")
     data object History : Destination("history")
     data object Settings : Destination("settings")
+    data object PairDetail : Destination("pair_detail/{symbol}") {
+        const val ARG_SYMBOL = "symbol"
+        fun createRoute(symbol: String) = "pair_detail/$symbol"
+    }
 }
 
 data class BottomTab(val destination: Destination, val icon: ImageVector, val labelRes: Int)

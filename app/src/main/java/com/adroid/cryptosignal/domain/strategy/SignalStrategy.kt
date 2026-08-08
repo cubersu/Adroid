@@ -10,4 +10,7 @@ import com.adroid.cryptosignal.domain.indicator.IndicatorSnapshot
 interface SignalStrategy {
     val name: String
     fun evaluate(snapshot: IndicatorSnapshot): StrategyEvaluation
+
+    /** Per-criterion breakdown for both directions, so the UI can show *why* (or why not). */
+    fun describeCriteria(snapshot: IndicatorSnapshot): SignalCriteriaBreakdown
 }

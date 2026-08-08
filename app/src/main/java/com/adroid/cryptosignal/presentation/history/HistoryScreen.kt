@@ -48,21 +48,29 @@ private fun HistoryRow(signal: TradeSignal) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(signal.pairSymbol, style = MaterialTheme.typography.titleMedium)
-                Text(formatTimestamp(signal.timestampMillis), style = MaterialTheme.typography.bodySmall)
-                Text(
-                    "Fiyat: ${signal.price} · Güven: %${(signal.confidenceRatio * 100).toInt()}",
-                    style = MaterialTheme.typography.bodySmall
-                )
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(signal.pairSymbol, style = MaterialTheme.typography.titleMedium)
+                    Text(formatTimestamp(signal.timestampMillis), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "Fiyat: ${signal.price} · Güven: %${(signal.confidenceRatio * 100).toInt()}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                SignalBadge(type = signal.type)
             }
-            SignalBadge(type = signal.type)
+            if (signal.matchedCriteria.isNotEmpty()) {
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    Text(stringResource(R.string.history_reason_title), style = MaterialTheme.typography.labelMedium)
+                    signal.matchedCriteria.forEach { criterion ->
+                        Text("• $criterion", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
         }
     }
 }

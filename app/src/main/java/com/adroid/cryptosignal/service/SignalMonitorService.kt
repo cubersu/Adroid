@@ -8,7 +8,6 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.content.ContextCompat
-import com.adroid.cryptosignal.domain.model.Candle
 import com.adroid.cryptosignal.domain.repository.MarketDataRepository
 import com.adroid.cryptosignal.domain.repository.SettingsRepository
 import com.adroid.cryptosignal.domain.repository.WatchlistRepository
@@ -91,29 +90,16 @@ class SignalMonitorService : Service() {
     }
 
     private fun launchPairMonitor(symbol: String): Job = serviceScope.launch {
-        val candleBuffer = ArrayDeque<Candle>()
-        marketDataRepository.observeCandleUpdates(symbol).collect { candle ->
-            upsertCandle(candleBuffer, candle)
-
+        marketDataRepository.observeCandleBuffer(symbol).collect { candles ->
             val settings = settingsRepository.observeSettings().first()
-            val signal = generateSignalUseCase(symbol, candleBuffer.toList(), settings.indicatorConfig)
+            val signal = generateSignalUseCase(symbol, candles, settings.indicatorConfig)
             if (signal != null && settings.notificationsEnabled) {
                 notificationHelper.showSignalNotification(signal)
             }
         }
     }
 
-    private fun upsertCandle(buffer: ArrayDeque<Candle>, candle: Candle) {
-        if (buffer.isNotEmpty() && buffer.last().openTimeSeconds == candle.openTimeSeconds) {
-            buffer.removeLast()
-        }
-        buffer.addLast(candle)
-        while (buffer.size > MAX_CANDLE_BUFFER) buffer.removeFirst()
-    }
-
     companion object {
-        private const val MAX_CANDLE_BUFFER = 300
-
         fun start(context: Context) {
             val intent = Intent(context, SignalMonitorService::class.java)
             ContextCompat.startForegroundService(context, intent)

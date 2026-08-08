@@ -15,6 +15,7 @@
     <string name="signal_sell">SAT</string>
 
     <string name="history_empty">Henüz üretilmiş bir sinyal yok.</string>
+    <string name="history_reason_title">Sağlanan kriterler:</string>
 
     <string name="settings_confidence_threshold">Sinyal Hassasiyeti (Güven Eşiği)</string>
     <string name="settings_notifications_enabled">Bildirimleri Aç</string>

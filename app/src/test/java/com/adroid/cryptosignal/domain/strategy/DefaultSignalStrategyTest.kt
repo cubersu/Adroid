@@ -70,6 +70,27 @@ class DefaultSignalStrategyTest {
         assertEquals(50, result.confidencePercent)
     }
 
+    @Test
+    fun `describeCriteria reports every criterion for both directions regardless of the winner`() {
+        val snapshot = baseSnapshot(
+            emaShortPrevious = 100.0, emaMidPrevious = 101.0,
+            emaShort = 102.0, emaMid = 101.5, // cross up
+            rsi = 40.0, rsiPrevious = 35.0, // turning up in band
+            price = 95.0, vwap = 100.0, // below vwap
+            volume = 5.0, averageVolume = 10.0 // below average
+        )
+        val breakdown = strategy.describeCriteria(snapshot)
+
+        assertEquals(4, breakdown.buyChecks.size)
+        assertEquals(4, breakdown.sellChecks.size)
+        assertTrue(breakdown.buyChecks.first { it.label == DefaultSignalStrategy.CRITERION_EMA_CROSS_UP }.isMet)
+        assertTrue(breakdown.buyChecks.first { it.label == DefaultSignalStrategy.CRITERION_PRICE_ABOVE_VWAP }.isMet.not())
+        // Price being below VWAP also satisfies the SELL side's mirrored check, even though
+        // BUY wins overall on crossover + RSI — describeCriteria reports both independently.
+        assertTrue(breakdown.sellChecks.first { it.label == DefaultSignalStrategy.CRITERION_PRICE_BELOW_VWAP }.isMet)
+        assertEquals(1, breakdown.sellChecks.count { it.isMet })
+    }
+
     private fun baseSnapshot(
         emaShortPrevious: Double,
         emaMidPrevious: Double,

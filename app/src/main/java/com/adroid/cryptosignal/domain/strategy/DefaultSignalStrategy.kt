@@ -23,29 +23,32 @@ class DefaultSignalStrategy @Inject constructor() : SignalStrategy {
     override val name: String = "default_ema_rsi_vwap_volume"
 
     override fun evaluate(snapshot: IndicatorSnapshot): StrategyEvaluation {
-        val buyCriteria = buyCriteria(snapshot)
-        val sellCriteria = sellCriteria(snapshot)
+        val buyMatches = buyChecks(snapshot).filter { it.isMet }.map { it.label }
+        val sellMatches = sellChecks(snapshot).filter { it.isMet }.map { it.label }
 
         return when {
-            buyCriteria.size > sellCriteria.size -> StrategyEvaluation(SignalType.BUY, buyCriteria, TOTAL_CRITERIA)
-            sellCriteria.size > buyCriteria.size -> StrategyEvaluation(SignalType.SELL, sellCriteria, TOTAL_CRITERIA)
+            buyMatches.size > sellMatches.size -> StrategyEvaluation(SignalType.BUY, buyMatches, TOTAL_CRITERIA)
+            sellMatches.size > buyMatches.size -> StrategyEvaluation(SignalType.SELL, sellMatches, TOTAL_CRITERIA)
             else -> StrategyEvaluation(SignalType.NEUTRAL, emptyList(), TOTAL_CRITERIA)
         }
     }
 
-    private fun buyCriteria(s: IndicatorSnapshot): List<String> = buildList {
-        if (s.emaShortPrevious <= s.emaMidPrevious && s.emaShort > s.emaMid) add(CRITERION_EMA_CROSS_UP)
-        if (s.rsi in RSI_BUY_BAND && s.rsi > s.rsiPrevious) add(CRITERION_RSI_TURN_UP)
-        if (s.price > s.vwap) add(CRITERION_PRICE_ABOVE_VWAP)
-        if (s.volume > s.averageVolume) add(CRITERION_VOLUME_ABOVE_AVERAGE)
-    }
+    override fun describeCriteria(snapshot: IndicatorSnapshot): SignalCriteriaBreakdown =
+        SignalCriteriaBreakdown(buyChecks(snapshot), sellChecks(snapshot))
 
-    private fun sellCriteria(s: IndicatorSnapshot): List<String> = buildList {
-        if (s.emaShortPrevious >= s.emaMidPrevious && s.emaShort < s.emaMid) add(CRITERION_EMA_CROSS_DOWN)
-        if (s.rsi in RSI_SELL_BAND && s.rsi < s.rsiPrevious) add(CRITERION_RSI_TURN_DOWN)
-        if (s.price < s.vwap) add(CRITERION_PRICE_BELOW_VWAP)
-        if (s.volume > s.averageVolume) add(CRITERION_VOLUME_ABOVE_AVERAGE)
-    }
+    private fun buyChecks(s: IndicatorSnapshot): List<CriterionCheck> = listOf(
+        CriterionCheck(CRITERION_EMA_CROSS_UP, s.emaShortPrevious <= s.emaMidPrevious && s.emaShort > s.emaMid),
+        CriterionCheck(CRITERION_RSI_TURN_UP, s.rsi in RSI_BUY_BAND && s.rsi > s.rsiPrevious),
+        CriterionCheck(CRITERION_PRICE_ABOVE_VWAP, s.price > s.vwap),
+        CriterionCheck(CRITERION_VOLUME_ABOVE_AVERAGE, s.volume > s.averageVolume)
+    )
+
+    private fun sellChecks(s: IndicatorSnapshot): List<CriterionCheck> = listOf(
+        CriterionCheck(CRITERION_EMA_CROSS_DOWN, s.emaShortPrevious >= s.emaMidPrevious && s.emaShort < s.emaMid),
+        CriterionCheck(CRITERION_RSI_TURN_DOWN, s.rsi in RSI_SELL_BAND && s.rsi < s.rsiPrevious),
+        CriterionCheck(CRITERION_PRICE_BELOW_VWAP, s.price < s.vwap),
+        CriterionCheck(CRITERION_VOLUME_ABOVE_AVERAGE, s.volume > s.averageVolume)
+    )
 
     companion object {
         private const val TOTAL_CRITERIA = 4

@@ -25,6 +25,15 @@ interface MarketDataRepository {
      */
     fun observeCandleUpdates(pairSymbol: String): Flow<Candle>
 
+    /**
+     * Same live/backfill candle stream as [observeCandleUpdates], folded into a rolling
+     * ordered buffer (oldest first, capped at [maxSize]) instead of one-at-a-time updates.
+     * This is the single source of truth for "what does the indicator engine see right now"
+     * — both the signal-generating service and any UI that displays live indicator values or
+     * a chart should collect this rather than keeping their own buffer.
+     */
+    fun observeCandleBuffer(pairSymbol: String, maxSize: Int = 300): Flow<List<Candle>>
+
     /** Live ticker updates for [pairSymbol] via the `ticker` channel. */
     fun observeTicker(pairSymbol: String): Flow<Ticker>
 
