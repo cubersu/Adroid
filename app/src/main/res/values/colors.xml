@@ -1,10 +1,10 @@
 <resources>
-    <color name="signal_buy_green">#FF1DB954</color>
-    <color name="signal_sell_red">#FFE53935</color>
-    <color name="signal_neutral_gray">#FF9E9E9E</color>
+    <color name="signal_buy_green">#FF00C853</color>
+    <color name="signal_sell_red">#FFFF3B30</color>
+    <color name="signal_neutral_gray">#FF8B949E</color>
 
-    <color name="primary">#FF2962FF</color>
-    <color name="primary_dark">#FF0039CB</color>
-    <color name="background_dark">#FF121212</color>
-    <color name="surface_dark">#FF1E1E1E</color>
+    <color name="primary">#FF5B8DEF</color>
+    <color name="primary_dark">#FF3D6BC7</color>
+    <color name="background_dark">#FF0D1117</color>
+    <color name="surface_dark">#FF161B22</color>
 </resources>
